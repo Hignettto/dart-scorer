@@ -9,11 +9,13 @@ export function HomeScreen({
   onPlayers,
   onResume,
   onBackup,
+  onHistory,
 }: {
   onNewGame: () => void
   onPlayers: () => void
   onResume: (gameId: string) => void
   onBackup: () => void
+  onHistory: () => void
 }) {
   const lastBackup = useLiveQuery(() => lastBackupAt(db), [])
   const backupOld = lastBackup !== undefined && backupIsOld(lastBackup)
@@ -52,6 +54,9 @@ export function HomeScreen({
         </button>
         <button className="big" onClick={onPlayers}>
           Players
+        </button>
+        <button className="big" onClick={onHistory}>
+          History
         </button>
         <button className="big" onClick={onBackup}>
           Backup

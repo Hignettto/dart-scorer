@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { db } from './data/db'
 import { startRtwGame } from './data/games'
 import { BackupScreen } from './screens/BackupScreen'
+import { GameLogScreen, HistoryScreen } from './screens/HistoryScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { PlayersScreen } from './screens/PlayersScreen'
 import { RtwGameScreen } from './screens/RtwGameScreen'
@@ -13,6 +14,8 @@ type Screen =
   | { name: 'home' }
   | { name: 'players' }
   | { name: 'backup' }
+  | { name: 'history' }
+  | { name: 'log'; gameId: string }
   | { name: 'setup'; order?: string[] }
   | { name: 'game'; gameId: string }
 
@@ -28,6 +31,17 @@ export default function App() {
           onPlayers={() => setScreen({ name: 'players' })}
           onResume={(gameId) => setScreen({ name: 'game', gameId })}
           onBackup={() => setScreen({ name: 'backup' })}
+          onHistory={() => setScreen({ name: 'history' })}
+        />
+      )
+    case 'history':
+      return <HistoryScreen onBack={home} onOpen={(gameId) => setScreen({ name: 'log', gameId })} />
+    case 'log':
+      return (
+        <GameLogScreen
+          gameId={screen.gameId}
+          onBack={() => setScreen({ name: 'history' })}
+          onResume={(gameId) => setScreen({ name: 'game', gameId })}
         />
       )
     case 'backup':
