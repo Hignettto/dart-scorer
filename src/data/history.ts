@@ -4,7 +4,8 @@ import { BULL } from '../engine/types'
 import type { Dart } from './db'
 
 /** Short text for one dart: "T7", "D20", "S3", "Outer", "Inner", or "Miss". */
-export function dartLabel(d: Pick<Dart, 'segment' | 'multiplier' | 'bullType'>): string {
+export function dartLabel(d: Pick<Dart, 'segment' | 'multiplier' | 'bullType' | 'visitTotal'>): string {
+  if (d.visitTotal != null) return `${d.visitTotal}` // X01 visit entered as a total
   if (d.multiplier === 0 || d.segment == null) return 'Miss'
   if (d.segment === BULL) return d.bullType === 'inner' || d.multiplier === 2 ? 'Inner' : 'Outer'
   return `${['', 'S', 'D', 'T'][d.multiplier]}${d.segment}`

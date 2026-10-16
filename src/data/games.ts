@@ -2,7 +2,9 @@
 // the game state is rebuilt by replaying them (see engine/rtw.ts).
 
 import { applyRtwDart, createRtwGame, replayRtw, rtwDartRecord, rtwThrowFromRecord, type RtwState, type RtwThrow } from '../engine/rtw'
-import { newId, type Dart, type DartsDB, type Game, type GamePlayer } from './db'
+import type { Placing } from '../engine/types'
+import { applyX01, bullTypeOf, createX01Game, replayX01, x01NextDart, type X01Input, type X01Settings, type X01State } from '../engine/x01'
+import { newId, type Dart, type DartsDB, type Game, type GameMode, type GamePlayer } from './db'
 
 export interface LoadedGame {
   game: Game
@@ -11,12 +13,19 @@ export interface LoadedGame {
   darts: Dart[]
 }
 
-export async function startRtwGame(db: DartsDB, playerIds: string[]): Promise<string> {
-  createRtwGame(playerIds) // checks the player list is valid
+export const startRtwGame = (db: DartsDB, playerIds: string[]) => startGame(db, 'rtw', playerIds, {})
+
+export const startX01Game = (db: DartsDB, playerIds: string[], settings: X01Settings) =>
+  startGame(db, 'x01', playerIds, settings as unknown as Record<string, unknown>)
+
+async function startGame(db: DartsDB, mode: GameMode, playerIds: string[], settings: Record<string, unknown>): Promise<string> {
+  // Checks the player list and settings are valid before saving anything.
+  if (mode === 'rtw') createRtwGame(playerIds)
+  else createX01Game(playerIds, settings as unknown as X01Settings)
   const game: Game = {
     id: newId(),
-    mode: 'rtw',
-    settings: {},
+    mode,
+    settings,
     startedAt: Date.now(),
     endedAt: null,
     status: 'in_progress',
@@ -61,20 +70,70 @@ export function makeRtwDart(gameId: string, state: RtwState, t: RtwThrow): { dar
   return { dart, state: applyRtwDart(state, t) }
 }
 
+/** What gets saved when a game ends. */
+interface Outcome {
+  status: 'in_progress' | 'finished'
+  winnerId: string | null
+  ranking: Placing[]
+  players: { playerId: string; finished: boolean }[]
+}
+
+export const saveRtwDart = (db: DartsDB, dart: Dart, after: RtwState) => saveDart(db, dart, after)
+export const saveX01Dart = (db: DartsDB, dart: Dart, after: X01State) => saveDart(db, dart, after)
+
 /** Saves one dart, and the result if that dart ended the game. */
-export async function saveRtwDart(db: DartsDB, dart: Dart, after: RtwState): Promise<void> {
+async function saveDart(db: DartsDB, dart: Dart, after: Outcome): Promise<void> {
   await db.transaction('rw', db.darts, db.games, db.gamePlayers, async () => {
     await db.darts.add(dart)
     if (after.status === 'finished') await saveResult(db, dart.gameId, after)
   })
 }
 
-async function saveResult(db: DartsDB, gameId: string, s: RtwState) {
+async function saveResult(db: DartsDB, gameId: string, s: Outcome) {
   await db.games.update(gameId, { status: 'finished', endedAt: Date.now(), winnerId: s.winnerId })
   for (const p of s.players) {
     const place = s.ranking.find((r) => r.playerId === p.playerId)?.place ?? null
     await db.gamePlayers.update([gameId, p.playerId], { finishPosition: place, finished: p.finished })
   }
+}
+
+// ---------------------------------------------------------------------------
+// X01
+
+/** Turns a stored dart (or stored visit) back into an input for replaying. */
+export function x01InputFromDart(d: Dart): X01Input {
+  if (d.visitTotal != null) {
+    return { kind: 'visit', total: d.visitTotal, dartsUsed: d.dartsUsed ?? 3, dartsAtDouble: d.dartsAtDouble ?? 0 }
+  }
+  return { kind: 'dart', segment: d.segment, multiplier: d.multiplier }
+}
+
+export function x01StateFromDarts(order: string[], settings: X01Settings, darts: Dart[]): X01State {
+  return replayX01(order, settings, darts.map(x01InputFromDart))
+}
+
+export function makeX01Dart(gameId: string, state: X01State, input: X01Input): { dart: Dart; state: X01State } {
+  const after = applyX01(state, input) // throws if the input is not allowed
+  const next = x01NextDart(state)!
+  const base = { id: newId(), gameId, timestamp: Date.now(), target: null, ...next }
+  const dart: Dart =
+    input.kind === 'dart'
+      ? {
+          ...base,
+          segment: input.multiplier === 0 ? null : input.segment,
+          multiplier: input.multiplier,
+          bullType: bullTypeOf(input.segment, input.multiplier),
+        }
+      : {
+          ...base,
+          segment: null,
+          multiplier: 0,
+          bullType: null,
+          visitTotal: input.total,
+          dartsUsed: input.dartsUsed,
+          dartsAtDouble: input.dartsAtDouble,
+        }
+  return { dart, state: after }
 }
 
 /** Removes the last dart. If that reopens a finished game, the result is cleared. */

@@ -158,3 +158,32 @@ button.small { min-height: 52px; padding: 0 16px; font-size: 1.1rem; }
 .h2h .w { color: #7fe0a0; }
 .h2h .l { color: #ff8080; }
 .h2h .d { color: var(--muted); }
+
+/* Setup toggles */
+.settings { display: flex; flex-direction: column; gap: 8px; }
+.toggle { background: var(--surface); border-radius: 14px; padding: 6px 6px 6px 16px; font-size: 1.15rem; font-weight: 600; }
+.seg { display: flex; gap: 4px; background: var(--bg); border-radius: 12px; padding: 3px; }
+.seg button { min-height: 52px; padding: 0 14px; font-size: 1.05rem; background: transparent; }
+.seg button.on { background: var(--accent); color: #fff; }
+
+/* X01 */
+.x01 .now .target { font-size: 5.2rem; margin-bottom: 6px; }
+.visit-darts { display: flex; justify-content: center; gap: 8px; }
+.chip-dart { min-width: 64px; height: 36px; border-radius: 10px; background: var(--surface-2); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
+.chip-dart.done { background: #24563a; }
+.chip-dart.next { outline: 2px solid var(--accent); }
+.hint { margin-top: 10px; color: var(--gold); font-weight: 800; font-size: 1.4rem; letter-spacing: 0.04em; }
+.dartpad { display: flex; flex-direction: column; gap: 8px; }
+.seg.mult button { flex: 1; min-height: 56px; font-size: 1.2rem; }
+.numbers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.numbers button { min-height: 64px; font-size: 1.5rem; }
+.numbers .bull { grid-column: span 2; background: #7a2525; }
+.numbers .miss { grid-column: span 2; }
+.visitpad .display { text-align: center; font-size: 3rem; font-weight: 900; background: var(--surface); border-radius: 14px; padding: 6px; font-variant-numeric: tabular-nums; }
+.visitpad .display.bad { color: #ff8080; }
+.visitpad .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+.visitpad .keys button { min-height: 68px; font-size: 1.8rem; }
+.question { background: var(--surface); border-radius: 16px; padding: 16px; text-align: center; }
+.question p { font-size: 1.3rem; font-weight: 700; margin: 0 0 12px; }
+.answers { display: flex; gap: 8px; }
+.answers button { flex: 1; min-height: 76px; font-size: 1.6rem; }

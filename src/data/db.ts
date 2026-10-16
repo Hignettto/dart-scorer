@@ -47,6 +47,13 @@ export interface Dart {
   multiplier: Multiplier
   bullType: BullType
   timestamp: number
+  /**
+   * X01 per-visit entry only: one record stands for a whole visit.
+   * segment/multiplier are then null/0 and these hold what was entered.
+   */
+  visitTotal?: number | null
+  dartsUsed?: number | null
+  dartsAtDouble?: number | null
 }
 
 /** Small key/value settings, e.g. when the last backup was made. */
