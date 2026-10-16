@@ -8,6 +8,7 @@ import { GameLogScreen, HistoryScreen } from './screens/HistoryScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { PlayersScreen } from './screens/PlayersScreen'
 import { RtwGameScreen } from './screens/RtwGameScreen'
+import { StatsScreen } from './screens/StatsScreen'
 import { SetupScreen } from './screens/SetupScreen'
 
 type Screen =
@@ -15,6 +16,7 @@ type Screen =
   | { name: 'players' }
   | { name: 'backup' }
   | { name: 'history' }
+  | { name: 'stats' }
   | { name: 'log'; gameId: string }
   | { name: 'setup'; order?: string[] }
   | { name: 'game'; gameId: string }
@@ -32,8 +34,11 @@ export default function App() {
           onResume={(gameId) => setScreen({ name: 'game', gameId })}
           onBackup={() => setScreen({ name: 'backup' })}
           onHistory={() => setScreen({ name: 'history' })}
+          onStats={() => setScreen({ name: 'stats' })}
         />
       )
+    case 'stats':
+      return <StatsScreen onBack={home} />
     case 'history':
       return <HistoryScreen onBack={home} onOpen={(gameId) => setScreen({ name: 'log', gameId })} />
     case 'log':
