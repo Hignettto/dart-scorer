@@ -6,6 +6,7 @@ import { readAll } from '../data/backup'
 import { db } from '../data/db'
 import { sortPlayers } from '../data/players'
 import { BULL } from '../engine/types'
+import { x01Stats } from '../stats/x01Stats'
 import { finishedRtwGames, MIN_ATTEMPTS, rankTargets, rtwStats, type TargetRate } from '../stats/rtwStats'
 import { Header } from './ui'
 
@@ -24,6 +25,7 @@ export function StatsScreen({ onBack }: { onBack: () => void }) {
   const nameOf = (id: string) => data.players.find((p) => p.id === id)?.nickname ?? 'Guest'
   const selected = playerId ?? players[0]?.id
   const s = selected ? rtwStats(data, selected, games) : undefined
+  const x = selected ? x01Stats(data, selected) : undefined
 
   return (
     <div className="screen">
@@ -36,7 +38,7 @@ export function StatsScreen({ onBack }: { onBack: () => void }) {
         ))}
       </div>
       {!s && <p className="empty">Add players and finish a game to see stats.</p>}
-      {s && s.played === 0 && <p className="empty">{nameOf(selected!)} hasn't finished a Round the World game yet.</p>}
+      {s && s.played === 0 && x?.played === 0 && <p className="empty">{nameOf(selected!)} hasn't finished a game yet.</p>}
       {s && s.played > 0 && (
         <>
           <h2>Round the World</h2>
@@ -103,6 +105,33 @@ export function StatsScreen({ onBack }: { onBack: () => void }) {
               <p className="muted small-print">A win = finished above them in the same game.</p>
             </>
           )}
+        </>
+      )}
+      {x && x.played > 0 && (
+        <>
+          <h2>X01</h2>
+          <div className="tiles">
+            <Tile value={x.played} label="games" />
+            <Tile value={x.wins} label="wins" />
+            <Tile value={pct(x.winPct)} label="win rate" />
+          </div>
+          <div className="tiles">
+            <Tile value={x.threeDartAvg?.toFixed(1) ?? '–'} label="3-dart average" />
+            <Tile value={x.first9Avg?.toFixed(1) ?? '–'} label="first-9 average" />
+          </div>
+          <div className="tiles">
+            <Tile value={pct(x.checkoutPct)} label={`checkout · ${x.doubleCheckouts}/${x.dartsAtDouble} darts`} />
+            <Tile value={x.highestCheckout ?? '–'} label="highest checkout" />
+          </div>
+          <div className="tiles">
+            <Tile value={x.tons} label="100+" />
+            <Tile value={x.ton40s} label="140+" />
+            <Tile value={x.max180s} label="180s" />
+          </div>
+          <p className="muted small-print">
+            Checkout % = finishes ÷ darts thrown while on a one-dart finish (D1–D20 or Bull), in double-out games. 100+ means 100 to 139, and
+            140+ means 140 to 179.
+          </p>
         </>
       )}
     </div>

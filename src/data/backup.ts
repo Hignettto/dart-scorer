@@ -2,6 +2,8 @@
 
 import { applyRtwDart, createRtwGame, rtwThrowFromRecord } from '../engine/rtw'
 import { BULL } from '../engine/types'
+import type { X01Settings } from '../engine/x01'
+import { x01Details } from '../stats/x01Stats'
 import { GUEST_ID, type Dart, type DartsDB, type Game, type GamePlayer, type Player } from './db'
 
 export const APP_NAME = 'darts-scorer'
@@ -132,6 +134,7 @@ export function makeCsvExports(data: AllData): CsvFiles {
 
   const gameRows: Cell[][] = []
   const rtwRows: Cell[][] = []
+  const x01Rows: Cell[][] = []
 
   for (const g of games) {
     const gps = data.gamePlayers.filter((gp) => gp.gameId === g.id).sort((a, b) => a.throwOrder - b.throwOrder)
@@ -140,7 +143,26 @@ export function makeCsvExports(data: AllData): CsvFiles {
     const darts = data.darts.filter((d) => d.gameId === g.id).sort((a, b) => a.seq - b.seq)
     const date = localDate(g.startedAt)
 
-    if (g.mode !== 'rtw') continue // X01 rows are added with the X01 step.
+    if (g.mode === 'x01') {
+      const { details, state } = x01Details(order, g.settings as unknown as X01Settings, darts)
+      for (const x of details) {
+        const d = x.dart
+        x01Rows.push([
+          g.id, date, d.playerId, nick(d.playerId), throwOrder(d.playerId), d.leg, d.round, d.phase,
+          d.visitTotal != null ? 'visit' : d.dartInVisit, d.segment, d.multiplier, d.bullType,
+          x.points, x.scoreBefore, x.scoreAfter, x.visitBust ? 1 : 0, x.checkout ? 1 : 0,
+        ])
+      }
+      for (const p of state.players) {
+        const gp = gps.find((x) => x.playerId === p.playerId)!
+        const result = p.playerId === g.winnerId ? 'won' : p.suddenDeathOutLeg != null ? 'sudden_death_lost' : 'lost'
+        gameRows.push([
+          g.id, date, g.mode, JSON.stringify(g.settings), p.playerId, nick(p.playerId), gp.throwOrder,
+          gp.finishPosition, p.finished ? 1 : 0, p.finished ? p.mainLegDarts : null, result,
+        ])
+      }
+      continue
+    }
 
     let s = createRtwGame(order)
     for (const d of darts) {
@@ -177,7 +199,7 @@ export function makeCsvExports(data: AllData): CsvFiles {
     ),
     'x01_darts.csv': toCsv(
       ['game_id', 'date', 'player_id', 'player', 'throw_order', 'leg', 'round', 'phase', 'visit_dart', 'segment', 'multiplier', 'bull_type', 'points', 'score_before', 'score_after', 'visit_bust', 'checkout'],
-      [],
+      x01Rows,
     ),
   }
 }
