@@ -5,6 +5,7 @@
 // the game state itself. It stores the darts, and rebuilds the state by replaying
 // them with `replayRtw`. Undo is simply "replay all darts except the last one".
 
+import { assignPlaces } from './places'
 import { BULL, type BullType, type Multiplier, type Phase, type Placing } from './types'
 
 /** What the player hit, as entered on the four big buttons. */
@@ -290,24 +291,6 @@ export function rankRtw(players: RtwPlayerState[], winnerId: string): Placing[] 
     return [2, -progress, p.reachedAtDarts]
   }
   return assignPlaces(players.map((p) => ({ id: p.playerId, key: sortKey(p) })))
-}
-
-/** Sorts by key and gives equal keys the same place. Shared with X01 later. */
-export function assignPlaces(entries: { id: string; key: number[] }[]): Placing[] {
-  const cmp = (a: number[], b: number[]) => {
-    for (let i = 0; i < Math.max(a.length, b.length); i++) {
-      const d = (a[i] ?? 0) - (b[i] ?? 0)
-      if (d !== 0) return d
-    }
-    return 0
-  }
-  const sorted = [...entries].sort((a, b) => cmp(a.key, b.key))
-  const out: Placing[] = []
-  sorted.forEach((e, i) => {
-    const place = i > 0 && cmp(e.key, sorted[i - 1].key) === 0 ? out[i - 1].place : i + 1
-    out.push({ playerId: e.id, place })
-  })
-  return out
 }
 
 /** Rebuilds a game's state from its darts, in order. */
