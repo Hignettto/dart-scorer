@@ -120,3 +120,7 @@ button.small { min-height: 52px; padding: 0 16px; font-size: 1.1rem; }
 .sheet p { margin: 0; }
 .sheet .next { font-size: 1.4rem; }
 .sheet .next strong { font-size: 2.6rem; }
+.ok { color: #7fe0a0; }
+.small-print { font-size: 0.95rem; margin: 0; }
+.backup-age { text-align: center; color: var(--muted); }
+.backup-age.warn { color: var(--gold); font-weight: 600; }
