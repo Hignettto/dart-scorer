@@ -84,3 +84,39 @@ h2 small { text-transform: none; letter-spacing: 0; }
 .chip { padding: 0 20px; }
 .chip.guest { background: transparent; border: 2px dashed var(--surface-2); }
 .menu { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+
+.muted { color: var(--muted); }
+button.small { min-height: 52px; padding: 0 16px; font-size: 1.1rem; }
+.resume { background: var(--surface); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; border: 2px solid var(--accent); }
+
+/* Game screen */
+.game { gap: 12px; min-height: 100dvh; }
+.game .round { text-align: center; color: var(--muted); font-weight: 600; font-size: 1.1rem; }
+.banner { text-align: center; padding: 10px; border-radius: 12px; font-weight: 800; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.banner.redemption { background: var(--gold); color: #1a1300; }
+.banner.sudden { background: var(--danger); color: #fff; }
+.banner.win { background: var(--gold); color: #1a1300; font-size: 1.6rem; text-transform: none; letter-spacing: 0; padding: 18px; }
+.now { text-align: center; background: var(--surface); border-radius: 18px; padding: 14px; }
+.now .who { font-size: 2rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.now .target { font-size: 6rem; font-weight: 900; line-height: 1; margin: 4px 0 10px; font-variant-numeric: tabular-nums; }
+.darts-left { display: flex; justify-content: center; gap: 12px; }
+.dot { width: 18px; height: 18px; border-radius: 50%; background: var(--surface-2); }
+.dot.on { background: var(--accent); }
+.pad { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pad button { min-height: 92px; font-size: 1.6rem; }
+.pad .hit { background: #24563a; }
+.pad .hit.inner { background: #7a2525; }
+.pad .miss { background: var(--surface-2); }
+.pad :last-child:nth-child(odd) { grid-column: span 2; }
+.board { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.board li { display: flex; align-items: center; gap: 8px; background: var(--surface); padding: 8px 12px; border-radius: 10px; }
+.board .name { font-size: 1.05rem; }
+.board .t { font-weight: 800; font-size: 1.2rem; }
+.board .current { outline: 2px solid var(--accent); }
+.board .out { opacity: 0.4; text-decoration: line-through; }
+.results .detail { color: var(--muted); padding-right: 10px; }
+.overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+.sheet { background: var(--surface); border-radius: 20px; padding: 22px; width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.sheet p { margin: 0; }
+.sheet .next { font-size: 1.4rem; }
+.sheet .next strong { font-size: 2.6rem; }
