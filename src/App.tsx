@@ -1,12 +1,22 @@
-// Step 1 "hello" page: proves the app builds, deploys and installs on the phone.
+// Top level: decides which screen is showing.
+
+import { useState } from 'react'
+import { HomeScreen } from './screens/HomeScreen'
+import { PlayersScreen } from './screens/PlayersScreen'
+import { SetupScreen } from './screens/SetupScreen'
+
+type Screen = { name: 'home' } | { name: 'players' } | { name: 'setup'; order?: string[] }
+
 export default function App() {
-  return (
-    <main style={{ display: 'grid', placeItems: 'center', minHeight: '100dvh', textAlign: 'center', padding: 24 }}>
-      <div>
-        <img src={`${import.meta.env.BASE_URL}pwa-192.png`} alt="" width={120} height={120} />
-        <h1 style={{ fontSize: '2.4rem', margin: '16px 0 8px' }}>Darts Scorer</h1>
-        <p style={{ color: 'var(--muted)', fontSize: '1.1rem' }}>Hello! The app is installed and ready to build on.</p>
-      </div>
-    </main>
-  )
+  const [screen, setScreen] = useState<Screen>({ name: 'home' })
+  const home = () => setScreen({ name: 'home' })
+
+  switch (screen.name) {
+    case 'home':
+      return <HomeScreen onNewGame={() => setScreen({ name: 'setup' })} onPlayers={() => setScreen({ name: 'players' })} />
+    case 'players':
+      return <PlayersScreen onBack={home} />
+    case 'setup':
+      return <SetupScreen initialOrder={screen.order} onBack={home} onStart={() => home()} />
+  }
 }
